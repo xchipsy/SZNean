@@ -497,6 +497,7 @@ function createCategoryButtons() {
 
 function render() {
   container.innerHTML = "";
+
   const filterText = searchInput.value.toLowerCase();
 
   items.forEach(item => {
@@ -514,117 +515,109 @@ function render() {
     if (filterInstock.checked && !inStock) return;
 
     const itemDiv = document.createElement("div");
-itemDiv.className = "item";
+    itemDiv.className = "item";
 
-const card = document.createElement("div");
-card.className = "card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-const front = document.createElement("div");
-front.className = "front";
+    const front = document.createElement("div");
+    front.className = "front";
 
-front.innerHTML = `
-  <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
-  <div class="item-code">${item.code}</div>
-  <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
-  <div class="item-name"><strong>${item.name}</strong></div>
-  ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
-  <div class="item-latin"><em>${item.latin || ''}</em></div>
-`;
+    front.innerHTML = `
+      <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
+      <div class="item-code">${item.code}</div>
+      <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
+      <div class="item-name"><strong>${item.name}</strong></div>
+      ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
+      <div class="item-latin"><em>${item.latin || ''}</em></div>
+    `;
 
-const back = document.createElement("div");
-back.className = "back";
+    const back = document.createElement("div");
+    back.className = "back";
 
-const idCode = document.createElement("div");
-idCode.className = "item-code";
-idCode.textContent = item.code;
-back.appendChild(idCode);
+    const idCode = document.createElement("div");
+    idCode.className = "item-code";
+    idCode.textContent = item.code;
+    back.appendChild(idCode);
 
-if (item.status === "zruseno") {
-  const statusDiv = document.createElement("div");
-  statusDiv.className = "item-status";
-  statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
-  back.appendChild(statusDiv);
-}
+    if (item.status === "zruseno") {
+      const statusDiv = document.createElement("div");
+      statusDiv.className = "item-status";
+      statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
+      back.appendChild(statusDiv);
+    }
 
-const barcodeDiv = document.createElement("div");
-barcodeDiv.className = "barcode";
-barcodeDiv.dataset.ean = item.ean || "";
-back.appendChild(barcodeDiv);
+    const barcodeDiv = document.createElement("div");
+    barcodeDiv.className = "barcode";
+    barcodeDiv.dataset.ean = item.ean || "";
+    back.appendChild(barcodeDiv);
 
-card.appendChild(front);
-card.appendChild(back);
-itemDiv.appendChild(card);
-container.appendChild(itemDiv);
+    card.appendChild(front);
+    card.appendChild(back);
+    itemDiv.appendChild(card);
+    container.appendChild(itemDiv);
 
+    // =========================
+    // FLIP + BARCODE
+    // =========================
+    itemDiv.addEventListener("click", (e) => {
+      if (e.target.closest(".toggle-stock")) return;
 
+      itemDiv.classList.toggle("flipped");
 
-// =========================
-// CLICK - OTOČENÍ + BARCODE
-// =========================
-itemDiv.addEventListener("click", (e) => {
+      const barcodeEl = itemDiv.querySelector(".barcode");
+      if (!barcodeEl) return;
 
-  // aby se neotáčelo při kliknutí na sklad tlačítko
-  if (e.target.closest(".toggle-stock")) return;
+      if (barcodeEl.dataset.rendered === "1") return;
 
-  itemDiv.classList.toggle("flipped");
+      const value = barcodeEl.dataset.ean;
+      if (!value) return;
 
-  const barcodeEl = itemDiv.querySelector(".barcode");
-  if (!barcodeEl) return;
+      let format = null;
 
-  if (barcodeEl.dataset.rendered === "1") return;
+      if (/^\d{8}$/.test(value)) format = "EAN8";
+      else if (/^\d{13}$/.test(value)) format = "EAN13";
+      else return;
 
-  const value = barcodeEl.dataset.ean;
-  if (!value) return;
+      const svg = document.createElement("svg");
+      barcodeEl.innerHTML = "";
 
-  let format = null;
+      JsBarcode(svg, value, {
+        format,
+        width: 2,
+        height: 70,
+        displayValue: true,
+        background: "#fff",
+        lineColor: "#000",
+        margin: 5
+      });
 
-  if (/^\d{8}$/.test(value)) {
-    format = "EAN8";
-  } else if (/^\d{13}$/.test(value)) {
-    format = "EAN13";
-  } else {
-    console.warn("Neplatný EAN:", value);
-    return;
-  }
+      barcodeEl.appendChild(svg);
+      barcodeEl.dataset.rendered = "1";
+    });
 
-  const svg = document.createElement("svg");
-  barcodeEl.innerHTML = "";
+    // =========================
+    // STOCK TOGGLE
+    // =========================
+    front.querySelector(".toggle-stock").addEventListener("click", e => {
+      e.stopPropagation();
 
-  JsBarcode(svg, value, {
-    format: format,
-    width: 2,
-    height: 70,
-    displayValue: true,
-    background: "#fff",
-    lineColor: "#000",
-    margin: 5
+      const btn = e.target;
+      const newStock = !(btn.textContent === "✓");
+
+      btn.textContent = newStock ? "✓" : "✗";
+      btn.classList.toggle("instock", newStock);
+      btn.classList.toggle("outstock", !newStock);
+
+      saveStock(storeId, item.code, newStock);
+
+      if (filterInstock.checked && !newStock) {
+        itemDiv.style.display = "none";
+      }
+    });
+
   });
-
-  barcodeEl.appendChild(svg);
-  barcodeEl.dataset.rendered = "1";
-});
-
-
-
-// =========================
-// SKLAD TOGGLE
-// =========================
-front.querySelector(".toggle-stock").addEventListener("click", e => {
-  e.stopPropagation();
-
-  const btn = e.target;
-  const newStock = !(btn.textContent === "✓");
-
-  btn.textContent = newStock ? "✓" : "✗";
-  btn.classList.toggle("instock", newStock);
-  btn.classList.toggle("outstock", !newStock);
-
-  saveStock(storeId, item.code, newStock);
-
-  if (filterInstock.checked && !newStock) {
-    itemDiv.style.display = "none";
-  }
-});
+}
 
 // ✅ Debounce
 let debounceTimer;
