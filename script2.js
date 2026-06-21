@@ -548,6 +548,8 @@ back.appendChild(barcodeSvg);
     container.appendChild(itemDiv);
 
    // --- Klik pro otáčení a generování čárového kódu
+let barcodeCreated = false;
+
 itemDiv.addEventListener("click", e => {
   if (!e.target.classList.contains("toggle-stock")) {
 
@@ -556,20 +558,22 @@ itemDiv.addEventListener("click", e => {
       if (el !== itemDiv) el.classList.remove("flipped");
     });
 
-    // otočit aktuální kartu
     itemDiv.classList.toggle("flipped");
 
-    // generování čárového kódu (EAN)
-    if (item.ean) {
-      setTimeout(() => {
-        JsBarcode(barcodeSvg, item.ean, {
-          format: "auto",
-          displayValue: true,
-          width: 2,
-          height: 80,
-          margin: 5
-        });
-      }, 50);
+    // generování barcode
+    if (!barcodeCreated && item.ean) {
+
+      const format = (item.ean.length === 8) ? "ean8" : "ean13";
+
+      JsBarcode(barcodeSvg, String(item.ean), {
+        format: format,
+        displayValue: true,
+        width: 2,
+        height: 80,
+        margin: 5
+      });
+
+      barcodeCreated = true;
     }
   }
 });
