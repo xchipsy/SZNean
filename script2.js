@@ -515,14 +515,13 @@ function render() {
 
     const itemDiv = document.createElement("div");
     itemDiv.className = "item";
-    itemDiv.dataset.category = item.category;
-    itemDiv.dataset.stock = inStock ? "instock" : "outstock";
 
     const card = document.createElement("div");
     card.className = "card";
 
     const front = document.createElement("div");
     front.className = "front";
+
     front.innerHTML = `
       <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
       <div class="item-code">${item.code}</div>
@@ -532,82 +531,94 @@ function render() {
       <div class="item-latin"><em>${item.latin || ''}</em></div>
     `;
 
-const back = document.createElement("div");
-back.className = "back";
+    const back = document.createElement("div");
+    back.className = "back";
 
-// --- vždy přidáme ID kód
-const idCode = document.createElement("div");
-idCode.className = "item-code";
-idCode.textContent = item.code;
-back.appendChild(idCode);
+    const idCode = document.createElement("div");
+    idCode.className = "item-code";
+    idCode.textContent = item.code;
+    back.appendChild(idCode);
 
-// --- status pouze u zrušených položek
-if (item.status === "zruseno") {
-  const statusDiv = document.createElement("div");
-  statusDiv.className = "item-status";
-  statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
-  back.appendChild(statusDiv);
-}
+    if (item.status === "zruseno") {
+      const statusDiv = document.createElement("div");
+      statusDiv.className = "item-status";
+      statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
+      back.appendChild(statusDiv);
+    }
 
-const barcodeDiv = document.createElement("div");
-barcodeDiv.className = "barcode";
-barcodeDiv.dataset.ean = item.ean || "";
-back.appendChild(barcodeDiv);
+    const barcodeDiv = document.createElement("div");
+    barcodeDiv.className = "barcode";
+    barcodeDiv.dataset.ean = item.ean || "";
+    back.appendChild(barcodeDiv);
 
-// --- klik na kartu = otočení + generování barcode
-card.addEventListener("click", () => {
-  card.classList.toggle("flipped");
+    card.appendChild(front);
+    card.appendChild(back);
+    itemDiv.appendChild(card);
+    container.appendChild(itemDiv);
 
-  const barcodeEl = card.querySelector(".barcode");
+    // =========================
+    // CLICK (otáčení + barcode)
+    // =========================
+    card.addEventListener("click", () => {
+      card.classList.toggle("flipped");
 
-  // už jednou vygenerováno → nic nedělej
-  if (barcodeEl.dataset.rendered === "1") return;
+      const barcodeEl = card.querySelector(".barcode");
+      if (!barcodeEl) return;
 
-  const value = barcodeEl.dataset.ean;
-  if (!value) return;
+      // už jednou vygenerováno
+      if (barcodeEl.dataset.rendered === "1") return;
 
-  let format = null;
+      const value = barcodeEl.dataset.ean;
+      if (!value) return;
 
-  if (/^\d{8}$/.test(value)) {
-    format = "EAN8";
-  } 
-  else if (/^\d{13}$/.test(value)) {
-    format = "EAN13";
-  } 
-  else {
-    console.warn("Neplatný EAN:", value);
-    return;
-  }
+      let format = null;
 
-  const svg = document.createElement("svg");
-  barcodeEl.innerHTML = "";
+      if (/^\d{8}$/.test(value)) {
+        format = "EAN8";
+      } else if (/^\d{13}$/.test(value)) {
+        format = "EAN13";
+      } else {
+        console.warn("Neplatný EAN:", value);
+        return;
+      }
 
-  JsBarcode(svg, value, {
-    format: format,
-    width: 2,
-    height: 70,
-    displayValue: true,
-    background: "#fff",
-    lineColor: "#000",
-    margin: 5
-  });
+      const svg = document.createElement("svg");
+      barcodeEl.innerHTML = "";
 
-  barcodeEl.appendChild(svg);
-  barcodeEl.dataset.rendered = "1";
-});
+      JsBarcode(svg, value, {
+        format: format,
+        width: 2,
+        height: 70,
+        displayValue: true,
+        background: "#fff",
+        lineColor: "#000",
+        margin: 5
+      });
 
-    // --- Toggle skladem
+      barcodeEl.appendChild(svg);
+      barcodeEl.dataset.rendered = "1";
+    });
+
+    // =========================
+    // sklad toggle
+    // =========================
     front.querySelector(".toggle-stock").addEventListener("click", e => {
       e.stopPropagation();
+
       const btn = e.target;
       const newStock = !(btn.textContent === "✓");
+
       btn.textContent = newStock ? "✓" : "✗";
       btn.classList.toggle("instock", newStock);
       btn.classList.toggle("outstock", !newStock);
-      itemDiv.dataset.stock = newStock ? "instock" : "outstock";
+
       saveStock(storeId, item.code, newStock);
-      if (filterInstock.checked && !newStock) itemDiv.style.display = "none";
+
+      if (filterInstock.checked && !newStock) {
+        itemDiv.style.display = "none";
+      }
     });
+
   });
 }
 
