@@ -537,8 +537,7 @@ function render() {
     idCode.textContent = item.code;
 
     const barcodeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-barcodeSvg.classList.add("qrcode");
-
+barcodeSvg.classList.add("barcode");
     back.appendChild(idCode);
     back.appendChild(barcodeSvg);
 
