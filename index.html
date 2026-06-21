@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Super zoo nápovědník</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  
+  <style>
+    #scrollTopBtn {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 9999;
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 50%;
+      background: #ffcc00;
+      cursor: pointer;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1>Super zoo nápovědník</h1>
+
+    <div class="logo-wrapper">
+      <img
+        src="logo.png"
+        alt="Super zoo logo"
+        class="logo"
+        onclick="window.open('https://xchipsy.github.io/SZNean/', '_blank')"
+      />
+      <div class="logo-tooltip">Režim inventura</div>
+    </div>
+
+  </div>
+</header>
+
+<div id="store-selector" style="margin-bottom: 15px;">
+  <label for="store-id">Číslo prodejny</label>
+  <input type="text" id="store-id" placeholder="Zadejte číslo prodejny" />
+  <button id="save-store-id">Uložit</button>
+  <div id="store-message" style="color: green; margin-top: 5px;"></div>
+</div>
+
+<div class="search-and-filter">
+  <label style="margin-right: 10px;">
+    <input type="checkbox" id="filter-instock" />
+    Pouze skladem
+  </label>
+  <input type="text" id="search" placeholder="Vyhledat..." />
+</div>
+
+<div id="categories"></div>
+<div id="container"></div>
+
+<button id="scrollTopBtn" title="Nahoru">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="42" height="42" fill="#5c3b00">
+    <path d="M12 4L6 10h4v6h4v-6h4z"/>
+  </svg>
+</button>
+
+<script src="script.js"></script>
+<script src="vanoce.js"></script>
+
+<script>
+  // Scroll tlačítko - zobrazí se po posunu dolů >300px
+  const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      scrollTopBtn.style.display = "flex";  // flex kvůli centrování svg
+    } else {
+      scrollTopBtn.style.display = "none";
+    }
+  });
+
+  // Při kliknutí scroll nahoru hladce
+  scrollTopBtn.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  });
+</script>
+
+<!-- --- Nový skript: checkbox "Pouze skladem" zatržený po načtení --- -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const filterCheckbox = document.getElementById("filter-instock");
+
+    // Načteme uložený stav z localStorage
+    const savedState = localStorage.getItem("filterInStockChecked");
+    if (savedState === null) {
+      // pokud nic není uloženo, checkbox zatrhneme
+      filterCheckbox.checked = true;
+    } else {
+      filterCheckbox.checked = savedState === "true";
+    }
+
+    // Uložíme změnu checkboxu do localStorage
+    filterCheckbox.addEventListener("change", () => {
+      localStorage.setItem("filterInStockChecked", filterCheckbox.checked);
+    });
+
+    // Vyvoláme změnu, aby se okamžitě filtrovaly položky
+    filterCheckbox.dispatchEvent(new Event("change"));
+  });
+</script>
+
+</body>
+</html>
