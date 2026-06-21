@@ -522,16 +522,15 @@ function render() {
     card.className = "card";
 
     const front = document.createElement("div");
-front.className = "front";
-front.innerHTML = `
-  <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
-  <div class="item-code">${item.code}</div>
-   <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
-  <div class="item-name"><strong>${item.name}</strong></div>
-  ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
-  <div class="item-latin"><em>${item.latin || ''}</em></div>
-  ${item.status === "zruseno" ? '<div class="item-status">ZRUŠENO</div>' : ''}
-`;
+    front.className = "front";
+    front.innerHTML = `
+      <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
+      <div class="item-code">${item.code}</div>
+      <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
+      <div class="item-name"><strong>${item.name}</strong></div>
+      ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
+      <div class="item-latin"><em>${item.latin || ''}</em></div>
+    `;
 
 const back = document.createElement("div");
 back.className = "back";
