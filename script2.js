@@ -551,16 +551,20 @@ if (item.status === "zruseno") {
 
 const barcodeDiv = document.createElement("div");
 barcodeDiv.className = "barcode";
+barcodeDiv.dataset.ean = item.ean || "";
 back.appendChild(barcodeDiv);
 
-card.appendChild(front);
-card.appendChild(back);
-itemDiv.appendChild(card);
-container.appendChild(itemDiv);
+// --- klik na kartu = otočení + generování barcode
+card.addEventListener("click", () => {
+  card.classList.toggle("flipped");
 
-// --- Klik pro otáčení a generování EAN
-if (!qrCreated && item.ean) {
-  const value = String(item.ean).trim();
+  const barcodeEl = card.querySelector(".barcode");
+
+  // už jednou vygenerováno → nic nedělej
+  if (barcodeEl.dataset.rendered === "1") return;
+
+  const value = barcodeEl.dataset.ean;
+  if (!value) return;
 
   let format = null;
 
@@ -576,8 +580,7 @@ if (!qrCreated && item.ean) {
   }
 
   const svg = document.createElement("svg");
-
-  barcodeDiv.appendChild(svg);
+  barcodeEl.innerHTML = "";
 
   JsBarcode(svg, value, {
     format: format,
@@ -589,10 +592,8 @@ if (!qrCreated && item.ean) {
     margin: 5
   });
 
-  qrCreated = true;
-}
-}
-  }
+  barcodeEl.appendChild(svg);
+  barcodeEl.dataset.rendered = "1";
 });
 
     // --- Toggle skladem
