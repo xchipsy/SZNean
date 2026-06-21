@@ -522,9 +522,10 @@ img {
 }
 
 .barcode {
-  width: 100px;
-  height: 80px;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 
 
