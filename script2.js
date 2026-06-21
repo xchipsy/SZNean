@@ -533,41 +533,46 @@ function render() {
     back.className = "back";
 
     const idCode = document.createElement("div");
-    idCode.className = "item-code";
-    idCode.textContent = item.code;
+idCode.className = "item-code";
+idCode.textContent = item.code;
 
-    const barcodeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-barcodeSvg.classList.add("barcode");
-    back.appendChild(idCode);
-    back.appendChild(barcodeSvg);
+const barcodeSvg = document.createElement("svg");
+barcodeSvg.className = "barcode";
+
+back.appendChild(idCode);
+back.appendChild(barcodeSvg);
 
     card.appendChild(front);
     card.appendChild(back);
     itemDiv.appendChild(card);
     container.appendChild(itemDiv);
 
-    // --- Klik pro otáčení a generování QR
-    let qrCreated = false;
-    itemDiv.addEventListener("click", e => {
-      if (!e.target.classList.contains("toggle-stock")) {
-        // zavřít ostatní
-        document.querySelectorAll(".item").forEach(el => {
-          if (el !== itemDiv) el.classList.remove("flipped");
-        });
-        itemDiv.classList.toggle("flipped");
+   // --- Klik pro otáčení a generování čárového kódu
+itemDiv.addEventListener("click", e => {
+  if (!e.target.classList.contains("toggle-stock")) {
 
-        if (!qrCreated && item.ean) {
-  JsBarcode(barcodeSvg, item.ean, {
-    format: "auto",
-    displayValue: true,
-    width: 2,
-    height: 80,
-    margin: 5
-  });
-  qrCreated = true;
-}
-      }
+    // zavřít ostatní karty
+    document.querySelectorAll(".item").forEach(el => {
+      if (el !== itemDiv) el.classList.remove("flipped");
     });
+
+    // otočit aktuální kartu
+    itemDiv.classList.toggle("flipped");
+
+    // generování čárového kódu (EAN)
+    if (item.ean) {
+      setTimeout(() => {
+        JsBarcode(barcodeSvg, item.ean, {
+          format: "auto",
+          displayValue: true,
+          width: 2,
+          height: 80,
+          margin: 5
+        });
+      }, 50);
+    }
+  }
+});
 
     // --- Toggle skladem
     front.querySelector(".toggle-stock").addEventListener("click", e => {
