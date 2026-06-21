@@ -514,113 +514,117 @@ function render() {
     if (filterInstock.checked && !inStock) return;
 
     const itemDiv = document.createElement("div");
-    itemDiv.className = "item";
+itemDiv.className = "item";
 
-    const card = document.createElement("div");
-    card.className = "card";
+const card = document.createElement("div");
+card.className = "card";
 
-    const front = document.createElement("div");
-    front.className = "front";
+const front = document.createElement("div");
+front.className = "front";
 
-    front.innerHTML = `
-      <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
-      <div class="item-code">${item.code}</div>
-      <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
-      <div class="item-name"><strong>${item.name}</strong></div>
-      ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
-      <div class="item-latin"><em>${item.latin || ''}</em></div>
-    `;
+front.innerHTML = `
+  <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
+  <div class="item-code">${item.code}</div>
+  <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
+  <div class="item-name"><strong>${item.name}</strong></div>
+  ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
+  <div class="item-latin"><em>${item.latin || ''}</em></div>
+`;
 
-    const back = document.createElement("div");
-    back.className = "back";
+const back = document.createElement("div");
+back.className = "back";
 
-    const idCode = document.createElement("div");
-    idCode.className = "item-code";
-    idCode.textContent = item.code;
-    back.appendChild(idCode);
+const idCode = document.createElement("div");
+idCode.className = "item-code";
+idCode.textContent = item.code;
+back.appendChild(idCode);
 
-    if (item.status === "zruseno") {
-      const statusDiv = document.createElement("div");
-      statusDiv.className = "item-status";
-      statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
-      back.appendChild(statusDiv);
-    }
-
-    const barcodeDiv = document.createElement("div");
-    barcodeDiv.className = "barcode";
-    barcodeDiv.dataset.ean = item.ean || "";
-    back.appendChild(barcodeDiv);
-
-    card.appendChild(front);
-    card.appendChild(back);
-    itemDiv.appendChild(card);
-    container.appendChild(itemDiv);
-
-    // =========================
-    // CLICK (otáčení + barcode)
-    // =========================
-    card.addEventListener("click", () => {
-      card.classList.toggle("flipped");
-
-      const barcodeEl = card.querySelector(".barcode");
-      if (!barcodeEl) return;
-
-      // už jednou vygenerováno
-      if (barcodeEl.dataset.rendered === "1") return;
-
-      const value = barcodeEl.dataset.ean;
-      if (!value) return;
-
-      let format = null;
-
-      if (/^\d{8}$/.test(value)) {
-        format = "EAN8";
-      } else if (/^\d{13}$/.test(value)) {
-        format = "EAN13";
-      } else {
-        console.warn("Neplatný EAN:", value);
-        return;
-      }
-
-      const svg = document.createElement("svg");
-      barcodeEl.innerHTML = "";
-
-      JsBarcode(svg, value, {
-        format: format,
-        width: 2,
-        height: 70,
-        displayValue: true,
-        background: "#fff",
-        lineColor: "#000",
-        margin: 5
-      });
-
-      barcodeEl.appendChild(svg);
-      barcodeEl.dataset.rendered = "1";
-    });
-
-    // =========================
-    // sklad toggle
-    // =========================
-    front.querySelector(".toggle-stock").addEventListener("click", e => {
-      e.stopPropagation();
-
-      const btn = e.target;
-      const newStock = !(btn.textContent === "✓");
-
-      btn.textContent = newStock ? "✓" : "✗";
-      btn.classList.toggle("instock", newStock);
-      btn.classList.toggle("outstock", !newStock);
-
-      saveStock(storeId, item.code, newStock);
-
-      if (filterInstock.checked && !newStock) {
-        itemDiv.style.display = "none";
-      }
-    });
-
-  });
+if (item.status === "zruseno") {
+  const statusDiv = document.createElement("div");
+  statusDiv.className = "item-status";
+  statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
+  back.appendChild(statusDiv);
 }
+
+const barcodeDiv = document.createElement("div");
+barcodeDiv.className = "barcode";
+barcodeDiv.dataset.ean = item.ean || "";
+back.appendChild(barcodeDiv);
+
+card.appendChild(front);
+card.appendChild(back);
+itemDiv.appendChild(card);
+container.appendChild(itemDiv);
+
+
+
+// =========================
+// CLICK - OTOČENÍ + BARCODE
+// =========================
+itemDiv.addEventListener("click", (e) => {
+
+  // aby se neotáčelo při kliknutí na sklad tlačítko
+  if (e.target.closest(".toggle-stock")) return;
+
+  itemDiv.classList.toggle("flipped");
+
+  const barcodeEl = itemDiv.querySelector(".barcode");
+  if (!barcodeEl) return;
+
+  if (barcodeEl.dataset.rendered === "1") return;
+
+  const value = barcodeEl.dataset.ean;
+  if (!value) return;
+
+  let format = null;
+
+  if (/^\d{8}$/.test(value)) {
+    format = "EAN8";
+  } else if (/^\d{13}$/.test(value)) {
+    format = "EAN13";
+  } else {
+    console.warn("Neplatný EAN:", value);
+    return;
+  }
+
+  const svg = document.createElement("svg");
+  barcodeEl.innerHTML = "";
+
+  JsBarcode(svg, value, {
+    format: format,
+    width: 2,
+    height: 70,
+    displayValue: true,
+    background: "#fff",
+    lineColor: "#000",
+    margin: 5
+  });
+
+  barcodeEl.appendChild(svg);
+  barcodeEl.dataset.rendered = "1";
+});
+
+
+
+// =========================
+// SKLAD TOGGLE
+// =========================
+front.querySelector(".toggle-stock").addEventListener("click", e => {
+  e.stopPropagation();
+
+  const btn = e.target;
+  const newStock = !(btn.textContent === "✓");
+
+  btn.textContent = newStock ? "✓" : "✗";
+  btn.classList.toggle("instock", newStock);
+  btn.classList.toggle("outstock", !newStock);
+
+  saveStock(storeId, item.code, newStock);
+
+  if (filterInstock.checked && !newStock) {
+    itemDiv.style.display = "none";
+  }
+});
 
 // ✅ Debounce
 let debounceTimer;
