@@ -491,16 +491,15 @@ function render() {
         itemDiv.classList.toggle("flipped");
 
         if (!qrCreated && item.ean) {
-          new QRCode(qrCodeDiv, {
-            text: item.ean,
-            width: 150,
-            height: 150,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          qrCreated = true;
-        }
+  JsBarcode(qrCodeDiv, item.ean, {
+    format: "auto",
+    displayValue: true,
+    width: 2,
+    height: 80,
+    margin: 5
+  });
+  qrCreated = true;
+}
       }
     });
 
