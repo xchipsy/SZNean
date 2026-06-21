@@ -573,16 +573,15 @@ itemDiv.addEventListener("click", e => {
   const svg = document.createElement("svg");
   barcodeDiv.appendChild(svg);
 
-  let format = "CODE128"; // fallback pro ne-EAN kódy
+  let format;
 
-  // EAN-13 (13 číslic)
-  if (/^\d{13}$/.test(item.ean)) {
-    format = "EAN13";
-  }
-
-  // EAN-8 (8 číslic)
-  else if (/^\d{8}$/.test(item.ean)) {
+  if (/^\d{8}$/.test(item.ean)) {
     format = "EAN8";
+  } else if (/^\d{13}$/.test(item.ean)) {
+    format = "EAN13";
+  } else {
+    // pokud to není validní EAN, nic nevykreslit
+    return;
   }
 
   JsBarcode(svg, item.ean, {
