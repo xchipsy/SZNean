@@ -558,39 +558,39 @@ card.appendChild(back);
 itemDiv.appendChild(card);
 container.appendChild(itemDiv);
 
-// --- Klik pro otáčení a generování QR
-let qrCreated = false;
-itemDiv.addEventListener("click", e => {
-  if (!e.target.classList.contains("toggle-stock")) {
-    // zavřít ostatní
-    document.querySelectorAll(".item").forEach(el => {
-      if (el !== itemDiv) el.classList.remove("flipped");
-    });
-    itemDiv.classList.toggle("flipped");
+// --- Klik pro otáčení a generování EAN
+if (!qrCreated && item.ean) {
+  const value = String(item.ean).trim();
 
-    if (!qrCreated && item.ean) {
-  const svg = document.createElement("svg");
-  barcodeDiv.appendChild(svg);
+  let format = null;
 
-  let format;
-
-  if (/^\d{8}$/.test(item.ean)) {
+  if (/^\d{8}$/.test(value)) {
     format = "EAN8";
-  } else if (/^\d{13}$/.test(item.ean)) {
+  } 
+  else if (/^\d{13}$/.test(value)) {
     format = "EAN13";
-  } else {
-    // pokud to není validní EAN, nic nevykreslit
+  } 
+  else {
+    console.warn("Neplatný EAN:", value);
     return;
   }
 
-  JsBarcode(svg, item.ean, {
+  const svg = document.createElement("svg");
+
+  barcodeDiv.appendChild(svg);
+
+  JsBarcode(svg, value, {
     format: format,
     width: 2,
-    height: 80,
-    displayValue: true
+    height: 70,
+    displayValue: true,
+    background: "#fff",
+    lineColor: "#000",
+    margin: 5
   });
 
   qrCreated = true;
+}
 }
   }
 });
