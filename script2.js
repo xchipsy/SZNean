@@ -536,11 +536,11 @@ function render() {
     idCode.className = "item-code";
     idCode.textContent = item.code;
 
-    const qrCodeDiv = document.createElement("div");
-    qrCodeDiv.className = "qrcode";
+    const barcodeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+barcodeSvg.classList.add("qrcode");
 
     back.appendChild(idCode);
-    back.appendChild(qrCodeDiv);
+    back.appendChild(barcodeSvg);
 
     card.appendChild(front);
     card.appendChild(back);
@@ -558,7 +558,7 @@ function render() {
         itemDiv.classList.toggle("flipped");
 
         if (!qrCreated && item.ean) {
-  JsBarcode(qrCodeDiv, item.ean, {
+  JsBarcode(barcodeSvg, item.ean, {
     format: "auto",
     displayValue: true,
     width: 2,
