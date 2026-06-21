@@ -521,56 +521,11 @@ img {
   color: #333;
 }
 
-.logo-wrapper {
-  position: relative;
-  display: inline-block;
+.barcode {
+  width: 100px;
+  height: 100px;
+  display: block;
 }
 
-/* bublina */
-.logo-tooltip {
-  position: absolute;
-  bottom: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 6px;
 
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.2s;
-  white-space: nowrap;
-}
 
-.logo-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.logo-tooltip {
-  position: absolute;
-  bottom: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: #fff;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 6px;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.2s;
-  white-space: nowrap;
-}
-
-.logo-wrapper:hover .logo-tooltip {
-  opacity: 1;
-}
-
-/* hover efekt */
-.logo-wrapper:hover .logo-tooltip {
-  opacity: 1;
-}
