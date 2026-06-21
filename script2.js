@@ -456,7 +456,7 @@ function render() {
     front.innerHTML = `
       <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
       <div class="item-code">${item.code}</div>
-      <img src="${item.image}" alt="${item.name}" loading="lazy" />
+      <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
       <div class="item-name"><strong>${item.name}</strong></div>
       ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
       <div class="item-latin"><em>${item.latin || ''}</em></div>
