@@ -548,32 +548,33 @@ back.appendChild(barcodeSvg);
     container.appendChild(itemDiv);
 
    // --- Klik pro otáčení a generování čárového kódu
-let barcodeCreated = false;
 
 itemDiv.addEventListener("click", e => {
   if (!e.target.classList.contains("toggle-stock")) {
 
-    // zavřít ostatní karty
     document.querySelectorAll(".item").forEach(el => {
       if (el !== itemDiv) el.classList.remove("flipped");
     });
 
     itemDiv.classList.toggle("flipped");
 
-    // generování barcode
-    if (!barcodeCreated && item.ean) {
+    if (item.ean) {
+      requestAnimationFrame(() => {
+        const format = (String(item.ean).length === 8) ? "ean8" : "ean13";
 
-      const format = (item.ean.length === 8) ? "ean8" : "ean13";
-
-      JsBarcode(barcodeSvg, String(item.ean), {
-        format: format,
-        displayValue: true,
-        width: 2,
-        height: 80,
-        margin: 5
+        JsBarcode(barcodeSvg, String(item.ean), {
+          format: format,
+          displayValue: true,
+          width: 2,
+          height: 80,
+          margin: 5
+        });
       });
+    }
+  }
+});
+    
 
-      barcodeCreated = true;
     }
   }
 });
