@@ -497,7 +497,6 @@ function createCategoryButtons() {
 
 function render() {
   container.innerHTML = "";
-
   const filterText = searchInput.value.toLowerCase();
 
   items.forEach(item => {
@@ -516,13 +515,14 @@ function render() {
 
     const itemDiv = document.createElement("div");
     itemDiv.className = "item";
+    itemDiv.dataset.category = item.category;
+    itemDiv.dataset.stock = inStock ? "instock" : "outstock";
 
     const card = document.createElement("div");
     card.className = "card";
 
     const front = document.createElement("div");
     front.className = "front";
-
     front.innerHTML = `
       <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
       <div class="item-code">${item.code}</div>
@@ -538,84 +538,53 @@ function render() {
     const idCode = document.createElement("div");
     idCode.className = "item-code";
     idCode.textContent = item.code;
+
+    const barcodeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+barcodeSvg.classList.add("qrcode");
+
     back.appendChild(idCode);
-
-    if (item.status === "zruseno") {
-      const statusDiv = document.createElement("div");
-      statusDiv.className = "item-status";
-      statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
-      back.appendChild(statusDiv);
-    }
-
-    const barcodeDiv = document.createElement("div");
-    barcodeDiv.className = "barcode";
-    barcodeDiv.dataset.ean = item.ean || "";
-    back.appendChild(barcodeDiv);
+    back.appendChild(barcodeSvg);
 
     card.appendChild(front);
     card.appendChild(back);
     itemDiv.appendChild(card);
     container.appendChild(itemDiv);
 
-    // =========================
-    // FLIP + BARCODE
-    // =========================
-    itemDiv.addEventListener("click", (e) => {
-      if (e.target.closest(".toggle-stock")) return;
+    // --- Klik pro otáčení a generování QR
+    let qrCreated = false;
+    itemDiv.addEventListener("click", e => {
+      if (!e.target.classList.contains("toggle-stock")) {
+        // zavřít ostatní
+        document.querySelectorAll(".item").forEach(el => {
+          if (el !== itemDiv) el.classList.remove("flipped");
+        });
+        itemDiv.classList.toggle("flipped");
 
-      itemDiv.classList.toggle("flipped");
-
-      const barcodeEl = itemDiv.querySelector(".barcode");
-      if (!barcodeEl) return;
-
-      if (barcodeEl.dataset.rendered === "1") return;
-
-      const value = barcodeEl.dataset.ean;
-      if (!value) return;
-
-      let format = null;
-
-      if (/^\d{8}$/.test(value)) format = "EAN8";
-      else if (/^\d{13}$/.test(value)) format = "EAN13";
-      else return;
-
-      const svg = document.createElement("svg");
-      barcodeEl.innerHTML = "";
-
-      JsBarcode(svg, value, {
-        format,
-        width: 2,
-        height: 70,
-        displayValue: true,
-        background: "#fff",
-        lineColor: "#000",
-        margin: 5
-      });
-
-      barcodeEl.appendChild(svg);
-      barcodeEl.dataset.rendered = "1";
-    });
-
-    // =========================
-    // STOCK TOGGLE
-    // =========================
-    front.querySelector(".toggle-stock").addEventListener("click", e => {
-      e.stopPropagation();
-
-      const btn = e.target;
-      const newStock = !(btn.textContent === "✓");
-
-      btn.textContent = newStock ? "✓" : "✗";
-      btn.classList.toggle("instock", newStock);
-      btn.classList.toggle("outstock", !newStock);
-
-      saveStock(storeId, item.code, newStock);
-
-      if (filterInstock.checked && !newStock) {
-        itemDiv.style.display = "none";
+        if (!qrCreated && item.ean) {
+  JsBarcode(barcodeSvg, item.ean, {
+    format: "auto",
+    displayValue: true,
+    width: 2,
+    height: 80,
+    margin: 5
+  });
+  qrCreated = true;
+}
       }
     });
 
+    // --- Toggle skladem
+    front.querySelector(".toggle-stock").addEventListener("click", e => {
+      e.stopPropagation();
+      const btn = e.target;
+      const newStock = !(btn.textContent === "✓");
+      btn.textContent = newStock ? "✓" : "✗";
+      btn.classList.toggle("instock", newStock);
+      btn.classList.toggle("outstock", !newStock);
+      itemDiv.dataset.stock = newStock ? "instock" : "outstock";
+      saveStock(storeId, item.code, newStock);
+      if (filterInstock.checked && !newStock) itemDiv.style.display = "none";
+    });
   });
 }
 
@@ -656,8 +625,6 @@ window.addEventListener("scroll", () => {
 });
 
 scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
-
-
 
 
 
