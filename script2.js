@@ -418,6 +418,9 @@ const items = [
   { name: "Patentky XL<span>100g</span>", image: "ostatni/mraz.jpg", code: "0211-40038", ean: "4038358199752", category: "Ostatní" },
   { name: "Rybičky<span>6-8cm 70g</span>", image: "ostatni/mraz.jpg", code: "0211-42026", ean: "4038358220265", category: "Ostatní" },
   { name: "Tanganika<span>100g</span>", image: "ostatni/mraz.jpg", code: "0211-49998", ean: "4038358199981", category: "Ostatní" },
+  
+
+ 
 
 
 ];
@@ -519,63 +522,78 @@ function render() {
     card.className = "card";
 
     const front = document.createElement("div");
-    front.className = "front";
-    front.innerHTML = `
-      <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
-      <div class="item-code">${item.code}</div>
-      <img src="${"https://xchipsy.github.io/SZN/" + item.image}" loading="lazy">
-      <div class="item-name"><strong>${item.name}</strong></div>
-      ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
-      <div class="item-latin"><em>${item.latin || ''}</em></div>
-    `;
+front.className = "front";
+front.innerHTML = `
+  <button class="toggle-stock ${inStock ? "instock" : "outstock"}">${inStock ? "✓" : "✗"}</button>
+  <div class="item-code">${item.code}</div>
+  <img src="${item.image}" alt="${item.name}" loading="lazy" />
+  <div class="item-name"><strong>${item.name}</strong></div>
+  ${item.orderOnly ? '<div class="item-orderonly">Na objednávku</div>' : ''}
+  <div class="item-latin"><em>${item.latin || ''}</em></div>
+  ${item.status === "zruseno" ? '<div class="item-status">ZRUŠENO</div>' : ''}
+`;
 
-    const back = document.createElement("div");
-    back.className = "back";
+const back = document.createElement("div");
+back.className = "back";
 
-    const idCode = document.createElement("div");
+// --- vždy přidáme ID kód
+const idCode = document.createElement("div");
 idCode.className = "item-code";
 idCode.textContent = item.code;
-
-const barcodeSvg = document.createElement("svg");
-barcodeSvg.className = "barcode";
-
 back.appendChild(idCode);
-back.appendChild(barcodeSvg);
 
-    card.appendChild(front);
-    card.appendChild(back);
-    itemDiv.appendChild(card);
-    container.appendChild(itemDiv);
+// --- status pouze u zrušených položek
+if (item.status === "zruseno") {
+  const statusDiv = document.createElement("div");
+  statusDiv.className = "item-status";
+  statusDiv.textContent = "ZRUŠENO – DOPRODEJ";
+  back.appendChild(statusDiv);
+}
 
-   // --- Klik pro otáčení a generování čárového kódu
+const barcodeDiv = document.createElement("div");
+barcodeDiv.className = "barcode";
+back.appendChild(barcodeDiv);
 
+card.appendChild(front);
+card.appendChild(back);
+itemDiv.appendChild(card);
+container.appendChild(itemDiv);
+
+// --- Klik pro otáčení a generování QR
+let qrCreated = false;
 itemDiv.addEventListener("click", e => {
   if (!e.target.classList.contains("toggle-stock")) {
-
+    // zavřít ostatní
     document.querySelectorAll(".item").forEach(el => {
       if (el !== itemDiv) el.classList.remove("flipped");
     });
-
     itemDiv.classList.toggle("flipped");
 
-    if (item.ean) {
-      requestAnimationFrame(() => {
-        const format = (String(item.ean).length === 8) ? "ean8" : "ean13";
+    if (!qrCreated && item.ean) {
+  const svg = document.createElement("svg");
+  barcodeDiv.appendChild(svg);
 
-        JsBarcode(barcodeSvg, String(item.ean), {
-          format: format,
-          displayValue: true,
-          width: 2,
-          height: 80,
-          margin: 5
-        });
-      });
-    }
+  let format = "CODE128"; // fallback pro ne-EAN kódy
+
+  // EAN-13 (13 číslic)
+  if (/^\d{13}$/.test(item.ean)) {
+    format = "EAN13";
   }
-});
-    
 
-    }
+  // EAN-8 (8 číslic)
+  else if (/^\d{8}$/.test(item.ean)) {
+    format = "EAN8";
+  }
+
+  JsBarcode(svg, item.ean, {
+    format: format,
+    width: 2,
+    height: 80,
+    displayValue: true
+  });
+
+  qrCreated = true;
+}
   }
 });
 
@@ -631,3 +649,11 @@ window.addEventListener("scroll", () => {
 });
 
 scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+
+
+
+
+
+
+
