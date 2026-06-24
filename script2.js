@@ -544,6 +544,7 @@ function render() {
 
     const barcodeDiv = document.createElement("div");
 barcodeDiv.className = "barcode";
+back.appendChild(idCode);
 back.appendChild(barcodeDiv);
 
     card.appendChild(front);
