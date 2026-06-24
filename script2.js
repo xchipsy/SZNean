@@ -552,7 +552,7 @@ back.appendChild(barcodeDiv);
     container.appendChild(itemDiv);
 
     // --- Klik pro otáčení a generování EAN
-    let barcodeCreated = false;
+    itemDiv.dataset.barcodeCreated = "false";
 
 itemDiv.addEventListener("click", e => {
   if (!e.target.classList.contains("toggle-stock")) {
@@ -563,15 +563,12 @@ itemDiv.addEventListener("click", e => {
 
     itemDiv.classList.toggle("flipped");
 
-    if (!barcodeCreated && item.ean) {
+    if (itemDiv.dataset.barcodeCreated === "false" && item.ean) {
 
   const svg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
   );
-
-  svg.style.width = "220px";
-  svg.style.height = "100px";
 
   barcodeDiv.appendChild(svg);
 
@@ -582,7 +579,7 @@ itemDiv.addEventListener("click", e => {
     displayValue: true
   });
 
-  barcodeCreated = true;
+  itemDiv.dataset.barcodeCreated = "true";
 }
   }
 });
