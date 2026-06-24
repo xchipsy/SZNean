@@ -525,6 +525,7 @@ img {
 .barcode {
   width: 100%;
   overflow: hidden;
+  margin-top: 40px;
 }
 
 .barcode svg {
