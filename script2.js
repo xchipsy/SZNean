@@ -565,23 +565,25 @@ itemDiv.addEventListener("click", e => {
 
     if (!barcodeCreated && item.ean) {
 
-      const svg = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "svg"
-      );
+  const svg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
 
-      barcodeDiv.appendChild(svg);
+  svg.style.width = "220px";
+  svg.style.height = "100px";
 
-      JsBarcode(svg, item.ean, {
-        format: "EAN13", // nebo "CODE128"
-        width: 2,
-        height: 80,
-        displayValue: true,
-        margin: 0
-      });
+  barcodeDiv.appendChild(svg);
 
-      barcodeCreated = true;
-    }
+  JsBarcode(svg, item.ean, {
+    format: "CODE128",
+    width: 2,
+    height: 80,
+    displayValue: true
+  });
+
+  barcodeCreated = true;
+}
   }
 });
 
