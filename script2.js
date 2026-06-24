@@ -542,39 +542,48 @@ function render() {
     idCode.className = "item-code";
     idCode.textContent = item.code;
 
-    const barcodeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-barcodeSvg.classList.add("qrcode");
-
-    back.appendChild(idCode);
-    back.appendChild(barcodeSvg);
+    const barcodeDiv = document.createElement("div");
+barcodeDiv.className = "barcode";
+back.appendChild(barcodeDiv);
 
     card.appendChild(front);
     card.appendChild(back);
     itemDiv.appendChild(card);
     container.appendChild(itemDiv);
 
-    // --- Klik pro otáčení a generování QR
-    let qrCreated = false;
-    itemDiv.addEventListener("click", e => {
-      if (!e.target.classList.contains("toggle-stock")) {
-        // zavřít ostatní
-        document.querySelectorAll(".item").forEach(el => {
-          if (el !== itemDiv) el.classList.remove("flipped");
-        });
-        itemDiv.classList.toggle("flipped");
+    // --- Klik pro otáčení a generování EAN
+    let barcodeCreated = false;
 
-        if (!qrCreated && item.ean) {
-  JsBarcode(barcodeSvg, item.ean, {
-    format: "auto",
-    displayValue: true,
-    width: 2,
-    height: 80,
-    margin: 5
-  });
-  qrCreated = true;
-}
-      }
+itemDiv.addEventListener("click", e => {
+  if (!e.target.classList.contains("toggle-stock")) {
+
+    document.querySelectorAll(".item").forEach(el => {
+      if (el !== itemDiv) el.classList.remove("flipped");
     });
+
+    itemDiv.classList.toggle("flipped");
+
+    if (!barcodeCreated && item.ean) {
+
+      const svg = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg"
+      );
+
+      barcodeDiv.appendChild(svg);
+
+      JsBarcode(svg, item.ean, {
+        format: "EAN13", // nebo "CODE128"
+        width: 2,
+        height: 80,
+        displayValue: true,
+        margin: 0
+      });
+
+      barcodeCreated = true;
+    }
+  }
+});
 
     // --- Toggle skladem
     front.querySelector(".toggle-stock").addEventListener("click", e => {
