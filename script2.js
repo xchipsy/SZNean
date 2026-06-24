@@ -574,9 +574,10 @@ itemDiv.addEventListener("click", e => {
 
   JsBarcode(svg, item.ean, {
     format: "CODE128",
-    width: 2,
-    height: 80,
-    displayValue: true
+  width: 1,
+  height: 40,
+  displayValue: false,
+  margin: 0
   });
 
   itemDiv.dataset.barcodeCreated = "true";
