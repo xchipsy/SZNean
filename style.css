@@ -522,19 +522,6 @@ img {
   color: #333;
 }
 
-.barcode {
-  width: 100%;
-  overflow: hidden;
-  margin-top: 40px;
-}
-
-.barcode svg {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
 .back {
   transform: rotateY(180deg);
   background-color: #ffe082;
@@ -542,20 +529,13 @@ img {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 }
 
-.barcode,
-.barcode svg,
-.barcode text {
-  user-select: none;
-}
-
-.item,
-.card,
-.front,
-.back {
-  user-select: none;
+.barcode {
+  width: 100%;
+  overflow: hidden;
+  margin-top: 0;
 }
 
 
