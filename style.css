@@ -523,13 +523,14 @@ img {
 }
 
 .barcode {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .barcode svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
   display: block;
 }
 
